@@ -39,7 +39,7 @@ def is_date_reliable():
 # ====================== GEMINI CHÚC MỪNG ======================
 def generate_birthday_message(name):
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-3.5-flash')
         
         prompt = f"""
         Viết một lời chúc sinh nhật cực kỳ ngọt ngào, ấm áp, đáng yêu dành cho {name}.
