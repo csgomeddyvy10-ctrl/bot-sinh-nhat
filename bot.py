@@ -3,8 +3,8 @@ from discord.ext import tasks, commands
 import datetime
 import os
 import time
-import google.generativeai as genai
 import random
+import google.generativeai as genai
 
 intents = discord.Intents.default()
 intents.members = True
@@ -15,7 +15,6 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # ====================== CONFIG ======================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-# Danh sách một số link ảnh sinh nhật đẹp (có thể thêm nhiều hơn)
 BIRTHDAY_IMAGES = [
     "https://i.imgur.com/0zJ8v0K.jpeg",
     "https://i.imgur.com/5z3pL8D.jpeg",
@@ -24,7 +23,17 @@ BIRTHDAY_IMAGES = [
     "https://i.imgur.com/JfR2vXt.jpeg",
 ]
 
-# ====================== DOUBLE DATE CHECK ======================
+# ====================== DỮ LIỆU SINH NHẬT ======================
+birthdays = {
+    "demacianking1": {"name": "Cường", "birthday": {"day": 5, "month": 1}, "year": 2000},
+    "thanh0374": {"name": "Thành", "birthday": {"day": 19, "month": 10}, "year": 2000},
+    "dangialanrangu": {"name": "Dũng Còi", "birthday": {"day": 17, "month": 11}, "year": 2000},
+    "manted1229": {"name": "Ngọc Điếc", "birthday": {"day": 4, "month": 1}, "year": 2000},
+    "vyanhduc": {"name": "Đức", "birthday": {"day": 25, "month": 12}, "year": 1999},
+    "pta.zyud": {"name": "Tuấn Anh", "birthday": {"day": 6, "month": 6}, "year": 2000},
+}
+# ============================================================
+
 def get_current_date():
     now1 = datetime.datetime.now().date()
     now2 = datetime.date.fromtimestamp(time.time())
@@ -36,27 +45,19 @@ def is_date_reliable():
         return True, date1
     return False, None
 
-# ====================== GEMINI CHÚC MỪNG ======================
 def generate_birthday_message(name):
     try:
         model = genai.GenerativeModel('gemini-3.5-flash')
-        
         prompt = f"""
         Viết một lời chúc sinh nhật cực kỳ ngọt ngào, ấm áp, đáng yêu dành cho {name}.
         Sử dụng emoji hợp lý, vui tươi. 
         Độ dài khoảng 2-3 câu, giọng điệu gần gũi, chân thành.
         Không dùng từ quá sến hoặc quá dài dòng.
         """
-
         response = model.generate_content(prompt)
         return response.text.strip()
-    except Exception as e:
-        print("Gemini error:", e)
-        # Fallback message
+    except:
         return f"Chúc mừng sinh nhật {name}! Chúc bạn một tuổi mới tràn đầy niềm vui, hạnh phúc và những điều tốt đẹp nhất! 🎉🥳"
-
-# ====================== MAIN ======================
-birthdays = { ... }  # giữ nguyên dữ liệu
 
 @bot.event
 async def on_ready():
@@ -81,14 +82,9 @@ async def check_birthday():
             member = channel.guild.get_member(int(user_id)) or channel.guild.get_member_named(data.get("name"))
             if member:
                 name = data["name"]
-                
-                # Tạo lời chúc bằng Gemini
                 message = generate_birthday_message(name)
-                
-                # Chọn ảnh ngẫu nhiên
                 image_url = random.choice(BIRTHDAY_IMAGES)
                 
-                # Gửi embed đẹp
                 embed = discord.Embed(
                     title="🎂 CHÚC MỪNG SINH NHẬT! 🎉",
                     description=message,
@@ -99,7 +95,6 @@ async def check_birthday():
                 
                 await channel.send(content=member.mention, embed=embed)
 
-# Lệnh test
 @bot.command(name="testbirthday")
 async def test_birthday(ctx, member: discord.Member = None):
     if not member:
